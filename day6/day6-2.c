@@ -42,17 +42,11 @@ int marker(char *stream)
             alphas[stream[j]-'a']++;
 
         for (int k = 0; k < 26; k++){
-            if (alphas[k] == 1){
-                printf("%d ", alphas[k]);
+            if (alphas[k] == 1)
                 sum += alphas[k];
-            }
         }
-        printf("\n");
-
-        if (sum == 14){
-            printf("Entramos al break\n");
+        if (sum == 14)
             break;
-        }
         else{
             for (int k = 0; k < 26; k++){
                 alphas[k] = 0;
