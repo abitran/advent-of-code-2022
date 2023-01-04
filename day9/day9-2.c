@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define ROWS 1000
-#define COLS 1000
+#define ROWS 50
+#define COLS 50
 #define BUFFER 10
 
 
@@ -20,8 +20,8 @@ int main(int argc, char **argv)
     rope r;
 
     for (int i = 0; i < BUFFER; i++){
-         r.posx[i] = 500;
-         r.posy[i] = 500;
+         r.posx[i] = 10;
+         r.posy[i] = 10;
     }
 
     FILE *fp = fopen(argv[1], "r");
@@ -93,6 +93,7 @@ void update(char dir, rope *r, char g[][COLS])
         int deltax = abs(r->posx[i-1] - r->posx[i]);
         int deltay = abs(r->posy[i-1] - r->posy[i]);
         int mdist = deltax > deltay ? deltax : deltay;
+ //       int mdist = deltax + deltay;
 
         if (mdist > 1){
             int dirx = r->posx[i-1] - r->posx[i];
