@@ -7,10 +7,11 @@
 
 #define BUFFER 256
 #define MAX_MONK 20
-#define ROUNDS 20
+#define ROUNDS 10000
+
 
 typedef struct monkey{
-    int items[256];
+    long int items[512];
     char operation;
     int op_value;
     int divisible;
@@ -20,9 +21,15 @@ typedef struct monkey{
     int monkey_false;
 }monkey;
 
+
 void throw_monkey(monkey *, monkey *);
 
+
 int compare(const void *, const void *);
+
+
+void check_items(monkey *);
+
 
 int main(int argc, char **argv)
 {
@@ -48,7 +55,7 @@ int main(int argc, char **argv)
             char *ptr = line;
             while (*ptr){
                 if (isdigit(*ptr) || ((*ptr == ',') && isdigit(*(ptr+1)))){
-                    monkeys[num_monkey].items[it_counter] = (int)strtol(ptr, &ptr, 10);
+                    monkeys[num_monkey].items[it_counter] = (long int)strtol(ptr, &ptr, 10);
                     it_counter++;
                 }
                 else
@@ -69,22 +76,20 @@ int main(int argc, char **argv)
             sscanf(line, "    %*s %*s %*s %*s %*s %d", &(monkeys[num_monkey].monkey_true));
         else if (line[4] == 'I' && line[7] == 'f')
             sscanf(line, "    %*s %*s %*s %*s %*s %d", &(monkeys[num_monkey].monkey_false));
-
     }
 
     fclose(fp);
 
+    check_items(monkeys);
 
-//    for (int i = 0; i < num_monkey+1; i++)
-//        printf("Monkey[%d] \n%d\n%c\n%d\n%d\n%d\n%d\n", i, monkeys[i].op_value, monkeys[i].operation, monkeys[i].divisible, monkeys[i].monkey_true, \
-                monkeys[i].monkey_false, monkeys[i].total_items);
+    int factors = 1;
+    for (int i = 0; i < num_monkey+1; i++)
+        factors *= monkeys[i].divisible;
 
     int r = ROUNDS;
     while (r--){
         for (int j = 0; j < num_monkey+1; j++){
             while (monkeys[j].total_items > 0){
-
-                monkeys[j].items_inspected++;
 
                 switch (monkeys[j].operation){
                     case '+':
@@ -102,7 +107,8 @@ int main(int argc, char **argv)
                         break;
                 }
 
-                monkeys[j].items[0] = (int)floor((double)monkeys[j].items[0] / 3);
+                monkeys[j].items[0] %= factors;;
+
                 if (monkeys[j].items[0] % monkeys[j].divisible == 0)
                     throw_monkey(&monkeys[j], &monkeys[monkeys[j].monkey_true]);
                 else
@@ -110,6 +116,7 @@ int main(int argc, char **argv)
 
             }
         }
+        check_items(monkeys);
     }
 
     for (int i = 0; i < num_monkey+1; i++)
@@ -122,13 +129,10 @@ int main(int argc, char **argv)
 
     qsort(calc, num_monkey+1, sizeof(int), compare);
 
-
-
-    printf("Part 1 : %d\n", calc[0] * calc[1]);
+    printf("Part 1 : %ldd\n", (long)calc[0] * (long)calc[1]);
 
     return 0;
 }
-
 
 
 void throw_monkey(monkey *from, monkey *to)
@@ -138,16 +142,36 @@ void throw_monkey(monkey *from, monkey *to)
         exit(EXIT_FAILURE);
     }
 
+    if (to->total_items > 256){
+        fprintf(stderr, "Queue full!\n");
+        exit(EXIT_FAILURE);
+    }
+
     to->items[to->total_items] = from->items[0];
     to->total_items++;
+
     for (int i = 0; i < from->total_items - 1; i++)
         from->items[i] = from->items[i+1];
 
+    from->items_inspected++;
     from->total_items--;
 
 }
 
+
 int compare(const void *a, const void *b)
 {
     return (*(int *)b - *(int *)a);
+}
+
+
+void check_items(monkey *m)
+{
+    for (int i = 0; i < 4; i++){
+        printf("Monkey[%d]: ", i);
+        for (int j = 0; j < m[i].total_items; j++)
+            printf("%ld ", m[i].items[j]);
+        printf("\n");
+    }
+    printf("\n");
 }
